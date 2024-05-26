@@ -11,10 +11,10 @@ jobs:
 
     services:
       localstack:
-        image: localstack/localstack
+        image: localstack/localstack-full
         ports:
           - 4566:4566
-        options: --name localstack --entrypoint awslocal localstack start
+        options: --name localstack
 
     steps:
     - name: Checkout Repository
