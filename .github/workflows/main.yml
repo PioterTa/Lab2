@@ -13,7 +13,10 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Setup Terraform
+    - name: Setup LocalStack
+      run: docker run --rm -d -p 4566:4566 -p 4571:4571 localstack/localstack
+
+    - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 1.0.0
@@ -26,3 +29,6 @@ jobs:
 
     - name: Terraform Apply
       run: terraform apply -auto-approve
+
+    - name: Test S3 Bucket
+      run: aws --endpoint-url=http://localhost:4566 s3 ls s3://my-test-bucket
