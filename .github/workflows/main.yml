@@ -9,12 +9,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566
+        options: --name localstack --entrypoint awslocal localstack start
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-
-    - name: Setup LocalStack
-      run: docker run --rm -d -p 4566:4566 -p 4571:4571 localstack/localstack
 
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
@@ -31,4 +35,4 @@ jobs:
       run: terraform apply -auto-approve
 
     - name: Test S3 Bucket
-      run: aws --endpoint-url=http://localhost:4566 s3 ls s3://my-test-bucket
+      run: awslocal s3 ls s3://my-test-bucket
