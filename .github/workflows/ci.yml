@@ -17,8 +17,20 @@ jobs:
       - name: "Checkout code"
         uses: actions/checkout@v2
 
-      - name: "Setup LocalStack"
-        uses: localstack/awscli-local-action@master
+      - name: "Install LocalStack"
+        run: |
+          pip install localstack awscli-local
+
+      - name: "Start LocalStack"
+        run: |
+          nohup localstack start &
+
+      - name: "Wait for LocalStack to be ready"
+        run: |
+          until curl -s http://localhost:4566/health | grep '"s3": "running"'; do
+            echo "Waiting for LocalStack to be ready..."
+            sleep 5
+          done
 
       - name: "Setup Terraform"
         uses: hashicorp/setup-terraform@v1
@@ -32,5 +44,4 @@ jobs:
       - name: "Plan Terraform"
         run: terraform plan
 
-      - name: "Apply Terraform"
-        run: terraform apply -auto-approve
+      - name:
