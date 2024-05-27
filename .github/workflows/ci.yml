@@ -1,47 +1,33 @@
-name: CI
+name: Terraform CI
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - master
 
 jobs:
   terraform:
-    name: "Terraform"
+    name: 'Terraform'
     runs-on: ubuntu-latest
 
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566
+        options: --privileged
+
     steps:
-      - name: "Checkout code"
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: "Install LocalStack"
-        run: |
-          pip install localstack awscli-local
-
-      - name: "Start LocalStack"
-        run: |
-          nohup localstack start &
-
-      - name: "Wait for LocalStack to be ready"
-        run: |
-          until curl -s http://localhost:4566/health | grep '"s3": "running"'; do
-            echo "Waiting for LocalStack to be ready..."
-            sleep 5
-          done
-
-      - name: "Setup Terraform"
+      - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.9
 
-      - name: "Initialize Terraform"
+      - name: Initialize Terraform
         run: terraform init
 
-      - name: "Validate Terraform"
-        run: terraform validate
-
-      - name: "Plan Terraform"
-        run: terraform plan
-
-      - name:
+      - name: Apply Terraform
+        run: terraform apply -auto-approve
