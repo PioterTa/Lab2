@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v2
+
+      - name: "Setup LocalStack"
+        uses: localstack/awscli-local-action@master
+
+      - name: "Setup Terraform"
+        uses: hashicorp/setup-terraform@v1
+
+      - name: "Initialize Terraform"
+        run: terraform init
+
+      - name: "Validate Terraform"
+        run: terraform validate
+
+      - name: "Plan Terraform"
+        run: terraform plan
+
+      - name: "Apply Terraform"
+        run: terraform apply -auto-approve
